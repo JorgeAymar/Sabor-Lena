@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Starting seed...');
+  console.log('Starting realistic seed (10x)...');
   
   // Clean up
   try {
@@ -16,123 +16,148 @@ async function main() {
       await prisma.user.deleteMany();
       console.log('Cleaned up database');
   } catch (e) {
-      console.log('Cleanup non-fatal error (tables might be empty):', e.message);
+      console.log('Cleanup non-fatal error:', e.message);
   }
 
-  // Categories
-  const catEntrantes = await prisma.category.create({ data: { name: 'Entrantes' } });
-  const catPrincipales = await prisma.category.create({ data: { name: 'Principales' } });
-  const catBebidas = await prisma.category.create({ data: { name: 'Bebidas' } });
-
-  // Products
-  const prod1 = await prisma.product.create({
-    data: {
-      name: 'Empanadas',
-      price: 5.50,
-      description: 'Empanadas de carne cortada a cuchillo (2 un)',
-      categoryId: catEntrantes.id,
-      image: 'https://images.unsplash.com/photo-1541544744-cc9735d465c?auto=format&fit=crop&q=80',
-    }
-  });
-
-  const prod2 = await prisma.product.create({
-    data: {
-      name: 'Asado de Tira',
-      price: 18.00,
-      description: 'Costillar de ternera a la leña con guarnición',
-      categoryId: catPrincipales.id,
-      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80',
-    }
-  });
-
-  const prod3 = await prisma.product.create({
-    data: {
-      name: 'Vino Malbec',
-      price: 22.00,
-      description: 'Botella de vino tinto reserva',
-      categoryId: catBebidas.id,
-      image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=80',
-    }
-  });
-
-  // Inventory
-  await prisma.inventoryItem.create({ data: { productId: prod1.id, quantity: 50, minStock: 10 } });
-  await prisma.inventoryItem.create({ data: { productId: prod2.id, quantity: 20, minStock: 5 } });
-  await prisma.inventoryItem.create({ data: { productId: prod3.id, quantity: 30, minStock: 5 } });
-
-  // Users
-  // Pre-calculated hash for 'password123'
-  const passwordHash = '$2b$10$rw5pUNu5vgVqzz8LaxvYguoYftPc2JSe6R67G/uczmyhS6Qv2iFFe';
-
-  await prisma.user.create({
-    data: { name: 'Admin User', email: 'admin@sabor.com', password: passwordHash, role: 'ADMIN', status: 'active' }
-  });
-  await prisma.user.create({
-    data: { name: 'Juan Camarero', email: 'juan@sabor.com', password: passwordHash, role: 'WAITER', status: 'active' }
-  });
-  await prisma.user.create({
-    data: { name: 'Maria Cocina', email: 'maria@sabor.com', password: passwordHash, role: 'KITCHEN', status: 'active' }
-  });
-
-  // Customers
-  await prisma.customer.create({
-    data: { 
-      name: 'Carlos Gomez', 
-      email: 'carlos@example.com', 
-      phone: '555-0101', 
-      totalSpent: 120.50,
-      // lastVisit: 2 days ago
-      lastVisit: new Date(Date.now() - 86400000 * 2).toISOString()
-    }
-  });
-  await prisma.customer.create({
-    data: { 
-      name: 'Ana Martinez', 
-      email: 'ana@example.com',
-      totalSpent: 450.00,
-      lastVisit: new Date(Date.now() - 86400000 * 5).toISOString()
-    }
-  });
-  await prisma.customer.create({
-    data: { 
-      name: 'Luis Rodriguez', 
-      email: 'luis@example.com', 
-      phone: '555-0202',
-      totalSpent: 45.00,
-      lastVisit: new Date().toISOString()
-    }
-  });
-
-  // Orders
-  await prisma.order.create({
-    data: {
-      tableNumber: 1,
-      status: 'PENDING',
-      total: 23.50,
-      items: {
-        create: [
-          { productId: prod1.id, quantity: 1, price: 5.50 },
-          { productId: prod2.id, quantity: 1, price: 18.00 }
-        ]
-      }
-    }
-  });
+  // --- Categories (10) ---
+  const categoriesData = [
+      'Entrantes', 'Carnes a la Brasa', 'Pastas Caseras', 'Ensaladas Frescas', 
+      'Pizzas a la Leña', 'Postres', 'Bebidas sin Alcohol', 'Vinos Tintos', 
+      'Vinos Blancos', 'Cafetería'
+  ];
   
-  await prisma.order.create({
-    data: {
-      tableNumber: 5,
-      status: 'READY',
-      total: 44.00,
-      items: {
-        create: [
-          { productId: prod2.id, quantity: 2, price: 36.00 },
-          { productId: prod3.id, quantity: 1, price: 8.00 }
-        ]
-      }
-    }
-  });
+  const categories = [];
+  for (const name of categoriesData) {
+      const cat = await prisma.category.create({ data: { name } });
+      categories.push(cat);
+  }
+  console.log('Created 10 Categories');
 
-  console.log('Seed completed!');
+  // --- Products (10+) ---
+  // Distribute products across categories
+  const productsData = [
+      { name: 'Empanadas Criollas', price: 3.50, desc: 'Carne cortada a cuchillo, receta tradicional', catIdx: 0 },
+      { name: 'Provoleta Asada', price: 12.00, desc: 'Queso provolone fundido con orégano y ají', catIdx: 0 },
+      { name: 'Asado de Tira', price: 18.50, desc: 'Costillar de ternera premium a la leña', catIdx: 1 },
+      { name: 'Ojo de Bife', price: 24.00, desc: 'Corte tierno de 400g con guarnición', catIdx: 1 },
+      { name: 'Sorrentinos de Jamón y Queso', price: 14.00, desc: 'Pasta rellena con salsa rosa', catIdx: 2 },
+      { name: 'Ensalada César', price: 11.50, desc: 'Lechuga, crutones, parmesano y aderezo especial', catIdx: 3 },
+      { name: 'Pizza Margarita', price: 10.00, desc: 'Tomate, mozzarella y albahaca fresca', catIdx: 4 },
+      { name: 'Flan Casero', price: 6.00, desc: 'Con dulce de leche y crema', catIdx: 5 },
+      { name: 'Malbec Reserva', price: 28.00, desc: 'Vino tinto de cuerpo, 750ml', catIdx: 7 },
+      { name: 'Café Cortado', price: 2.20, desc: 'Espresso con un toque de leche', catIdx: 9 }
+  ];
+
+  const products = [];
+  for (const p of productsData) {
+      const prod = await prisma.product.create({
+          data: {
+              name: p.name,
+              price: p.price,
+              description: p.desc,
+              categoryId: categories[p.catIdx].id,
+              isAvailable: true,
+              image: `https://source.unsplash.com/random/400x300/?food,restaurant,${p.name.split(' ')[0]}` // Random food image
+          }
+      });
+      products.push(prod);
+      
+      // Create inventory for each
+      await prisma.inventoryItem.create({
+          data: { productId: prod.id, quantity: Math.floor(Math.random() * 50) + 10, minStock: 5 }
+      });
+  }
+  console.log('Created 10 Products with Inventory');
+
+  // --- Users (10) ---
+  const passwordHash = '$2b$10$rw5pUNu5vgVqzz8LaxvYguoYftPc2JSe6R67G/uczmyhS6Qv2iFFe'; // 'password123'
+  
+  const usersData = [
+      { name: 'Admin Principal', email: 'admin@sabor.com', role: 'ADMIN' },
+      { name: 'Juan Camarero', email: 'juan@sabor.com', role: 'WAITER' },
+      { name: 'Maria Cocina', email: 'maria@sabor.com', role: 'KITCHEN' },
+      { name: 'Carlos Gerente', email: 'carlos@sabor.com', role: 'ADMIN' },
+      { name: 'Sofia Mesera', email: 'sofia@sabor.com', role: 'WAITER' },
+      { name: 'Pedro Chef', email: 'pedro@sabor.com', role: 'KITCHEN' },
+      { name: 'Laura Barra', email: 'laura@sabor.com', role: 'WAITER' },
+      { name: 'Diego Logistica', email: 'diego@sabor.com', role: 'ADMIN' },
+      { name: 'Ana Ayudante', email: 'ana@sabor.com', role: 'KITCHEN' },
+      { name: 'Lucas Mesero', email: 'lucas@sabor.com', role: 'WAITER' }
+  ];
+
+  for (const u of usersData) {
+      await prisma.user.create({
+          data: {
+              name: u.name,
+              email: u.email,
+              password: passwordHash,
+              role: u.role,
+              status: 'active'
+          }
+      });
+  }
+  console.log('Created 10 Users');
+
+  // --- Customers (10) ---
+  const customerNames = [
+      'Antonio Lopez', 'Beatriz Garcia', 'Carlos Ruiz', 'Diana Mendez', 
+      'Eduardo Fernandez', 'Fernanda Torres', 'Gabriel Diaz', 'Helena Romero', 
+      'Ignacio Vasquez', 'Julia Silva'
+  ];
+
+  const customers = [];
+  for (let i = 0; i < customerNames.length; i++) {
+      const cust = await prisma.customer.create({
+          data: {
+              name: customerNames[i],
+              email: `cliente${i+1}@test.com`,
+              phone: `555-010${i}`,
+              totalSpent: Math.floor(Math.random() * 500),
+              lastVisit: new Date(Date.now() - Math.floor(Math.random() * 1000000000)).toISOString()
+          }
+      });
+      customers.push(cust);
+  }
+  console.log('Created 10 Customers');
+
+  // --- Orders (10) ---
+  const orderStatuses = ['PENDING', 'COOKING', 'READY', 'DELIVERED', 'CANCELLED'];
+  
+  for (let i = 1; i <= 10; i++) {
+      // Randomly select products for this order
+      const itemCount = Math.floor(Math.random() * 3) + 1;
+      const selectedProducts = [];
+      let orderTotal = 0;
+      
+      const orderItemsData = [];
+      
+      for (let j = 0; j < itemCount; j++) {
+          const randProd = products[Math.floor(Math.random() * products.length)];
+          const qty = Math.floor(Math.random() * 2) + 1;
+          const itemPrice = randProd.price * qty;
+          
+          orderTotal += itemPrice;
+          orderItemsData.push({
+              productId: randProd.id,
+              quantity: qty,
+              price: randProd.price
+          });
+      }
+
+      await prisma.order.create({
+          data: {
+              tableNumber: i,
+              status: orderStatuses[Math.floor(Math.random() * orderStatuses.length)],
+              total: orderTotal,
+              items: {
+                  create: orderItemsData
+              }
+          }
+      });
+  }
+  console.log('Created 10 Orders');
+
+  console.log('Seed completed successfully!');
 }
 
 main()
@@ -144,3 +169,4 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+
