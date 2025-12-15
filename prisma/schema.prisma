@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      Role     @default(WAITER)
+  status    String   @default("active") // active, inactive
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  price       Float
+  image       String?
+  description String?
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  orderItems  OrderItem[]
+  inventory   InventoryItem?
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  products  Product[]
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  tableNumber Int
+  status      OrderStatus @default(PENDING)
+  total       Float       @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+model Customer {
+  id         String   @id @default(uuid())
+  name       String
+  phone      String?
+  email      String?  @unique
+  totalSpent Float    @default(0)
+  lastVisit  DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model InventoryItem {
+  id        String   @id @default(uuid())
+  productId String   @unique
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  unit      String   @default("units")
+  minStock  Int      @default(10)
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+}
+
+enum Role {
+  ADMIN
+  WAITER
+  KITCHEN
+}
+
+enum OrderStatus {
+  PENDING
+  COOKING
+  READY
+  DELIVERED
+  CANCELLED
+}
