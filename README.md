@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sabor & Leña - Admin Dashboard
 
-## Getting Started
+Este proyecto es una aplicación **Next.js** con base de datos **PostgreSQL**, diseñada para ser desplegada en un VPS utilizando **Docker Compose** y **Nginx** como proxy inverso.
 
-First, run the development server:
+## Requisitos Previos
+
+En tu VPS (Ubuntu/Debian recomendado), asegúrate de tener instalado:
+- **Git**
+- **Docker** y **Docker Compose**
+- **Nginx**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Instalación rápida de Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Instalar Nginx
+sudo apt update
+sudo apt install nginx -y
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Instalación desde Cero
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Sigue estos pasos para desplegar la aplicación por primera vez.
 
-## Learn More
+### 1. Clonar el Repositorio
+```bash
+cd /opt
+sudo git clone https://github.com/JorgeAymar/Sabor-Lena.git sabor-lena
+cd sabor-lena
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Configurar Variables de Entorno
+Crea el archivo `.env` basado en el ejemplo (o crea uno nuevo):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cp .env.example .env
+nano .env
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Asegúrate de configurar `DATABASE_URL` para que apunte al servicio de Docker (la red interna):
+```ini
+# En producción con Docker Compose, el host es el nombre del servicio 'postgres'
+DATABASE_URL="postgresql://admin:password123@postgres:5432/sabor_lena?schema=public"
+```
 
-## Deploy on Vercel
+### 3. Ejecutar con Docker Compose
+Este comando levantará la base de datos y la aplicación.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Construir y levantar contenedores en segundo plano
+sudo docker compose up -d --build
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4. Inicializar la Base de Datos
+Una vez que el contenedor de base de datos esté listo, ejecuta las migraciones y el seed inicial.
+
+```bash
+# Entrar al contenedor de la app (asegúrate de saber el nombre, ej: sabor-lena-app-1)
+sudo docker compose exec app npx prisma db push
+sudo docker compose exec app npx prisma db seed
+```
+
+### 5. Configurar Nginx
+Crea un archivo de configuración para el sitio:
+
+```bash
+sudo nano /etc/nginx/sites-available/sabor-lena
+```
+
+Pega el siguiente contenido (ajusta `tu-dominio.com`):
+
+```nginx
+server {
+    listen 80;
+    server_name tu-dominio.com www.tu-dominio.com;
+
+    location / {
+        proxy_pass http://localhost:3000; # Puerto interno de la app Next.js
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Activa el sitio y reinicia Nginx:
+```bash
+sudo ln -s /etc/nginx/sites-available/sabor-lena /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+---
+
+## 🔄 Actualización (Update)
+
+Para actualizar la aplicación cuando haya cambios en el repositorio:
+
+### 1. Descargar Cambios
+```bash
+cd /opt/sabor-lena
+sudo git pull origin main
+```
+
+### 2. Reconstruir y Reiniciar
+```bash
+sudo docker compose up -d --build
+```
+
+### 3. Migraciones de Base de Datos (si es necesario)
+Si hubo cambios en el esquema de Prisma:
+
+```bash
+sudo docker compose exec app npx prisma db push
+```
+
+---
+
+## Comandos Útiles
+
+- **Ver logs de la aplicación:**
+  ```bash
+  sudo docker compose logs -f app
+  ```
+
+- **Ver logs de la base de datos:**
+  ```bash
+  sudo docker compose logs -f postgres
+  ```
+
+- **Reiniciar todo:**
+  ```bash
+  sudo docker compose restart
+  ```
