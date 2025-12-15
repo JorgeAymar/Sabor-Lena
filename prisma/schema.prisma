@@ -11,7 +11,8 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  role      Role     @default(WAITER)
+  password  String?  // Optional for now, required for credentials auth
+  role      UserRole @default(WAITER)
   status    String   @default("active") // active, inactive
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -87,7 +88,7 @@ model Setting {
   value String
 }
 
-enum Role {
+enum UserRole {
   ADMIN
   WAITER
   KITCHEN
