@@ -10,9 +10,17 @@ async function main() {
     
     console.log(`Updating password for ${email}...`);
     
-    const user = await prisma.user.update({
+    // Use upsert to create if not exists
+    const user = await prisma.user.upsert({
       where: { email },
-      data: { password: hashedPassword },
+      update: { password: hashedPassword },
+      create: {
+        email,
+        name: 'System Admin',
+        password: hashedPassword,
+        role: 'ADMIN',
+        status: 'active'
+      }
     });
     
     console.log(`Successfully updated password for ${user.email}`);
