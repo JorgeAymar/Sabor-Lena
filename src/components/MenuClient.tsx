@@ -19,7 +19,7 @@ const MenuClient: React.FC<MenuClientProps> = ({ categories }) => {
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
-    await createProduct(formData);
+    await createProduct(undefined, formData);
     setIsLoading(false);
     setIsModalOpen(false);
   }
