@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { logout } from '@/app/actions/auth-actions';
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -94,6 +95,14 @@ const Sidebar = () => {
                 <p className="text-xs font-normal text-gray-500">Gerente</p>
               </div>
             </div>
+            
+            <button
+              onClick={() => logout()}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 transition-colors w-full text-left mt-1"
+            >
+              <span className="material-symbols-outlined">logout</span>
+              <p className="text-sm font-medium">Cerrar Sesión</p>
+            </button>
           </div>
         </div>
       </aside>

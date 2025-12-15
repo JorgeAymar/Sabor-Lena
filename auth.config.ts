@@ -7,17 +7,19 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith('/');
       const isOnLogin = nextUrl.pathname.startsWith('/login');
 
-      if (isOnDashboard) {
-        if (isOnLogin) return true; // Always allow access to login page
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
-      } else if (isLoggedIn) {
-        return Response.redirect(new URL('/', nextUrl));
+      console.log('Middleware check:', { pathname: nextUrl.pathname, isLoggedIn, isOnLogin });
+
+      if (isOnLogin) {
+        if (isLoggedIn) return Response.redirect(new URL('/', nextUrl));
+        return true;
       }
-      return true;
+
+      if (isLoggedIn) return true;
+
+      console.log('Redirecting to login...');
+      return false; // Redirect unauthenticated users to login page
     },
   },
   providers: [], // Add providers with an empty array for now
