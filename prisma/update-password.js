@@ -1,22 +1,14 @@
 
-const path = require('path');
-// Add app node_modules to path explicitly just in case
-module.paths.push('/app/node_modules');
-
 const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
-
-
 const prisma = new PrismaClient();
 
 async function main() {
   try {
     const email = 'admin@sabor.com';
-    const password = 'password123';
+    // Pre-calculated hash for 'password123'
+    const hashedPassword = '$2b$10$rw5pUNu5vgVqzz8LaxvYguoYftPc2JSe6R67G/uczmyhS6Qv2iFFe';
     
     console.log(`Updating password for ${email}...`);
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
     
     const user = await prisma.user.update({
       where: { email },
