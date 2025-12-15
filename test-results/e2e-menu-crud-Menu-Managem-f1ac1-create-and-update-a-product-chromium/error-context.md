@@ -1,0 +1,157 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - alert [ref=e11]
+  - generic [ref=e12]:
+    - complementary [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e17]: restaurant_menu
+          - generic [ref=e18]:
+            - heading "Sabor & Leña" [level=1] [ref=e19]
+            - paragraph [ref=e20]: Admin Panel
+        - navigation [ref=e21]:
+          - link "dashboard Panel" [ref=e22] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e23]: dashboard
+            - paragraph [ref=e24]: Panel
+          - link "receipt_long Pedidos" [ref=e25] [cursor=pointer]:
+            - /url: /orders
+            - generic [ref=e26]: receipt_long
+            - paragraph [ref=e27]: Pedidos
+          - link "restaurant_menu Menú" [ref=e28] [cursor=pointer]:
+            - /url: /menu
+            - generic [ref=e29]: restaurant_menu
+            - paragraph [ref=e30]: Menú
+          - link "manage_accounts Usuarios" [ref=e31] [cursor=pointer]:
+            - /url: /users
+            - generic [ref=e32]: manage_accounts
+            - paragraph [ref=e33]: Usuarios
+          - link "group Clientes" [ref=e34] [cursor=pointer]:
+            - /url: /customers
+            - generic [ref=e35]: group
+            - paragraph [ref=e36]: Clientes
+          - link "bar_chart Informes" [ref=e37] [cursor=pointer]:
+            - /url: /reports
+            - generic [ref=e38]: bar_chart
+            - paragraph [ref=e39]: Informes
+          - link "inventory_2 Inventario" [ref=e40] [cursor=pointer]:
+            - /url: /inventory
+            - generic [ref=e41]: inventory_2
+            - paragraph [ref=e42]: Inventario
+          - link "settings Configuración" [ref=e43] [cursor=pointer]:
+            - /url: /settings
+            - generic [ref=e44]: settings
+            - paragraph [ref=e45]: Configuración
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e49]: person
+            - generic [ref=e50]:
+              - paragraph [ref=e51]: Admin User
+              - paragraph [ref=e52]: Gerente
+          - button "logout Cerrar Sesión" [ref=e53]:
+            - generic [ref=e54]: logout
+            - paragraph [ref=e55]: Cerrar Sesión
+    - main [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - heading "Panel de Control" [level=2] [ref=e60]
+            - paragraph [ref=e61]: Resumen de actividad del restaurante
+          - generic [ref=e66]: Cocina Activa
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - generic [ref=e71]: receipt_long
+            - generic [ref=e72]:
+              - paragraph [ref=e73]: Pedidos Hoy
+              - paragraph [ref=e74]: "2"
+          - generic [ref=e75]:
+            - generic [ref=e78]: payments
+            - generic [ref=e79]:
+              - paragraph [ref=e80]: Ventas Hoy
+              - paragraph [ref=e81]: $67.50
+          - generic [ref=e82]:
+            - generic [ref=e85]: restaurant
+            - generic [ref=e86]:
+              - paragraph [ref=e87]: En Cocina
+              - paragraph [ref=e88]: "2"
+          - generic [ref=e89]:
+            - generic [ref=e92]: sentiment_satisfied
+            - generic [ref=e93]:
+              - paragraph [ref=e94]: Satisfacción
+              - paragraph [ref=e95]: 4.8/5
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - heading "Rendimiento de Ventas" [level=3] [ref=e98]
+            - application [ref=e102]:
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - generic [ref=e116]: 10:00
+                  - generic [ref=e118]: 12:00
+                  - generic [ref=e120]: 14:00
+                  - generic [ref=e122]: 16:00
+                  - generic [ref=e124]: 18:00
+                  - generic [ref=e126]: 20:00
+                - generic [ref=e127]:
+                  - generic [ref=e129]: "0"
+                  - generic [ref=e131]: "150"
+                  - generic [ref=e133]: "300"
+                  - generic [ref=e135]: "450"
+                  - generic [ref=e137]: "600"
+          - generic [ref=e138]:
+            - heading "Platos Destacados" [level=3] [ref=e139]
+            - generic [ref=e140]:
+              - generic [ref=e141]:
+                - img "Empanadas" [ref=e143]
+                - generic [ref=e144]:
+                  - paragraph [ref=e145]: Empanadas
+                  - paragraph [ref=e146]: $5.50
+              - generic [ref=e147]:
+                - img "Asado de Tira" [ref=e149]
+                - generic [ref=e150]:
+                  - paragraph [ref=e151]: Asado de Tira
+                  - paragraph [ref=e152]: $18.00
+              - generic [ref=e153]:
+                - img "Vino Malbec" [ref=e155]
+                - generic [ref=e156]:
+                  - paragraph [ref=e157]: Vino Malbec
+                  - paragraph [ref=e158]: $22.00
+              - link "Ver Menú Completo" [ref=e159] [cursor=pointer]:
+                - /url: /menu
+        - generic [ref=e160]:
+          - generic [ref=e161]:
+            - heading "Pedidos Recientes" [level=3] [ref=e162]
+            - link "Ver todos" [ref=e163] [cursor=pointer]:
+              - /url: /orders
+          - table [ref=e165]:
+            - rowgroup [ref=e166]:
+              - row "Mesa Items Estado Total Hora" [ref=e167]:
+                - columnheader "Mesa" [ref=e168]
+                - columnheader "Items" [ref=e169]
+                - columnheader "Estado" [ref=e170]
+                - columnheader "Total" [ref=e171]
+                - columnheader "Hora" [ref=e172]
+            - rowgroup [ref=e173]:
+              - 'row "Mesa 5 #91b6df3d 2x Asado de Tira, 1x Vino Malbec READY $44.00 hace 18 minutos" [ref=e174]':
+                - 'cell "Mesa 5 #91b6df3d" [ref=e175]':
+                  - generic [ref=e176]: Mesa 5
+                  - generic [ref=e177]: "#91b6df3d"
+                - cell "2x Asado de Tira, 1x Vino Malbec" [ref=e178]
+                - cell "READY" [ref=e179]:
+                  - generic [ref=e180]: READY
+                - cell "$44.00" [ref=e181]
+                - cell "hace 18 minutos" [ref=e182]
+              - 'row "Mesa 1 #1ac8fbe9 1x Empanadas, 1x Asado de Tira PENDING $23.50 hace 18 minutos" [ref=e183]':
+                - 'cell "Mesa 1 #1ac8fbe9" [ref=e184]':
+                  - generic [ref=e185]: Mesa 1
+                  - generic [ref=e186]: "#1ac8fbe9"
+                - cell "1x Empanadas, 1x Asado de Tira" [ref=e187]
+                - cell "PENDING" [ref=e188]:
+                  - generic [ref=e189]: PENDING
+                - cell "$23.50" [ref=e190]
+                - cell "hace 18 minutos" [ref=e191]
+  - generic [ref=e192]: "0"
+```
