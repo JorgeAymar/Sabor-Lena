@@ -1,0 +1,94 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - complementary [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e6]: restaurant_menu
+        - generic [ref=e7]:
+          - heading "Sabor & Leña" [level=1] [ref=e8]
+          - paragraph [ref=e9]: Admin Panel
+      - navigation [ref=e10]:
+        - link "dashboard Panel" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e12]: dashboard
+          - paragraph [ref=e13]: Panel
+        - link "receipt_long Pedidos" [ref=e14] [cursor=pointer]:
+          - /url: /orders
+          - generic [ref=e15]: receipt_long
+          - paragraph [ref=e16]: Pedidos
+        - link "restaurant_menu Menú" [active] [ref=e17] [cursor=pointer]:
+          - /url: /menu
+          - generic [ref=e18]: restaurant_menu
+          - paragraph [ref=e19]: Menú
+        - link "manage_accounts Usuarios" [ref=e20] [cursor=pointer]:
+          - /url: /users
+          - generic [ref=e21]: manage_accounts
+          - paragraph [ref=e22]: Usuarios
+        - link "group Clientes" [ref=e23] [cursor=pointer]:
+          - /url: /customers
+          - generic [ref=e24]: group
+          - paragraph [ref=e25]: Clientes
+        - link "bar_chart Informes" [ref=e26] [cursor=pointer]:
+          - /url: /reports
+          - generic [ref=e27]: bar_chart
+          - paragraph [ref=e28]: Informes
+        - link "inventory_2 Inventario" [ref=e29] [cursor=pointer]:
+          - /url: /inventory
+          - generic [ref=e30]: inventory_2
+          - paragraph [ref=e31]: Inventario
+        - link "settings Configuración" [ref=e32] [cursor=pointer]:
+          - /url: /settings
+          - generic [ref=e33]: settings
+          - paragraph [ref=e34]: Configuración
+      - generic [ref=e36]:
+        - generic [ref=e38]: person
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: Admin User
+          - paragraph [ref=e41]: Gerente
+  - main [ref=e42]:
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - heading "Menú" [level=2] [ref=e46]
+          - paragraph [ref=e47]: Gestión de productos y categorías
+        - button "add Nuevo Producto" [ref=e48]:
+          - generic [ref=e49]: add
+          - text: Nuevo Producto
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - img "Asado de Tira" [ref=e53]
+            - generic [ref=e54]: $18.00
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - generic [ref=e58]: Principales
+                - heading "Asado de Tira" [level=3] [ref=e59]
+              - button "more_vert" [ref=e60]:
+                - generic [ref=e61]: more_vert
+            - paragraph [ref=e62]: Costillar de ternera a la leña
+            - generic [ref=e63]:
+              - button "Editar" [ref=e64]
+              - button "Disponible" [ref=e65]
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - img "Empanadas" [ref=e68]
+            - generic [ref=e69]: $5.50
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - generic [ref=e72]:
+                - generic [ref=e73]: Entrantes
+                - heading "Empanadas" [level=3] [ref=e74]
+              - button "more_vert" [ref=e75]:
+                - generic [ref=e76]: more_vert
+            - paragraph [ref=e77]: Empanadas de carne cortada a cuchillo
+            - generic [ref=e78]:
+              - button "Editar" [ref=e79]
+              - button "Disponible" [ref=e80]
+  - button "Open Next.js Dev Tools" [ref=e86] [cursor=pointer]:
+    - img [ref=e87]
+  - alert [ref=e90]
+  - generic [ref=e91]: "0"
+```
