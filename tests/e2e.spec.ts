@@ -23,7 +23,14 @@ test('navigate to inventory and check stock', async ({ page }) => {
   await expect(page.locator('input[name="quantity"]').first()).toBeVisible();
 });
 
-test('navigate to users page', async ({ page }) => {
+test('navigate to users page and check create modal', async ({ page }) => {
   await page.goto('/users');
   await expect(page.getByRole('heading', { name: 'Usuarios' })).toBeVisible();
+  // Target the user in the table
+  await expect(page.getByRole('cell', { name: 'Admin User' }).first()).toBeVisible();
+  
+  // Test the new modal
+  await page.getByRole('button', { name: 'Añadir Usuario' }).click();
+  await expect(page.getByText('Crear Nuevo Usuario')).toBeVisible();
+  await expect(page.locator('input[name="name"]')).toBeVisible();
 });

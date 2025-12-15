@@ -1,22 +1,6 @@
 import React from 'react';
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
-
-async function createUser(formData: FormData) {
-  'use server';
-  const name = formData.get('name') as string;
-  const email = formData.get('email') as string;
-  const role = formData.get('role') as any;
-
-  try {
-    await prisma.user.create({
-      data: { name, email, role, status: 'active' } // Default status
-    });
-    revalidatePath('/users');
-  } catch (error) {
-    console.error(error);
-  }
-}
+import UsersClient from '@/components/UsersClient';
 
 export default async function UsersPage() {
   const users = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
@@ -30,11 +14,7 @@ export default async function UsersPage() {
         </div>
         {/* Simple form as "Modal" placeholder or inline for speed */}
         <div className="flex gap-2">
-           {/* In a real app, use the Client Modal like in Menu */}
-           <button className="flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white">
-             <span className="material-symbols-outlined text-[20px]">person_add</span>
-             Añadir Usuario
-           </button>
+           <UsersClient />
         </div>
       </div>
 
