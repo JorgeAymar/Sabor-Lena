@@ -8,9 +8,14 @@ export async function authenticate(
   formData: FormData,
 ) {
   try {
-    await signIn('credentials', formData);
+    await signIn('credentials', {
+      email: formData.get('email'),
+      password: formData.get('password'),
+      redirectTo: '/',
+    });
   } catch (error) {
     if (error instanceof AuthError) {
+      console.error('Auth Error:', error.type, error);
       switch (error.type) {
         case 'CredentialsSignin':
           return 'Invalid credentials.';

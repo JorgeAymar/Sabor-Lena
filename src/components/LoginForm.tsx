@@ -1,69 +1,95 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState, useEffect } from 'react';
 import { authenticate } from '@/app/actions/auth';
+import { useRouter } from 'next/navigation';
 
 export default function LoginForm() {
   const [errorMessage, dispatch, isPending] = useActionState(
     authenticate,
     undefined,
   );
+  const router = useRouter();
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (submitted && !isPending && !errorMessage) {
+      router.push('/');
+    }
+  }, [submitted, isPending, errorMessage, router]);
+
+  const handleSubmit = (payload: FormData) => {
+    setSubmitted(true);
+    dispatch(payload);
+  };
 
   return (
-    <form action={dispatch} className="space-y-3">
-      <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-        <h1 className="mb-3 text-2xl">
-          Please log in to continue.
-        </h1>
-        <div className="w-full">
-          <div>
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-2 text-sm outline-2 placeholder:text-gray-500"
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Enter your email address"
-                required
-              />
-            </div>
-          </div>
-          <div className="mt-4">
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-2 text-sm outline-2 placeholder:text-gray-500"
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Enter password"
-                required
-                minLength={6}
-              />
-            </div>
+    <form action={handleSubmit} className="mt-8 space-y-6">
+      <div className="space-y-5">
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Correo Electrónico
+          </label>
+          <div className="mt-1">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="admin@sabor.com"
+              className="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500 sm:text-sm transition-all shadow-sm"
+            />
           </div>
         </div>
-        <div className="flex h-8 items-end space-x-1" aria-live="polite" aria-atomic="true">
-          {errorMessage && (
-            <p className="text-sm text-red-500">{errorMessage}</p>
-          )}
+
+        <div>
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Contraseña
+          </label>
+          <div className="mt-1">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              placeholder="••••••••"
+              className="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500 sm:text-sm transition-all shadow-sm"
+            />
+          </div>
         </div>
+      </div>
+
+      <div className="flex h-8 items-end space-x-1" aria-live="polite" aria-atomic="true">
+        {errorMessage && (
+          <div className="flex items-center gap-2 text-sm text-red-500 bg-red-50 px-3 py-2 rounded-md w-full border border-red-100">
+            <span className="material-symbols-outlined text-[18px]">error</span>
+            <p>{errorMessage}</p>
+          </div>
+        )}
+      </div>
+
+      <div>
         <button
-            className="mt-4 w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center justify-center gap-2"
-            aria-disabled={isPending}
+          type="submit"
+          disabled={isPending}
+          className="flex w-full justify-center rounded-lg border border-transparent bg-gray-900 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
-          Log in 
+          {isPending ? (
+            <span className="flex items-center gap-2">
+              <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+              Ingresando...
+            </span>
+          ) : (
+            'Iniciar Sesión'
+          )}
         </button>
       </div>
     </form>

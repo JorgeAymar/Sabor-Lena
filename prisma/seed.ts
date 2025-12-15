@@ -55,7 +55,7 @@ async function main() {
   await prisma.inventoryItem.create({ data: { productId: prod3.id, quantity: 30, minStock: 5 } })
 
   // Users
-  const passwordHash = await bcrypt.hash('123456', 10);
+  const passwordHash = await bcrypt.hash('password123', 10);
 
   await prisma.user.create({
     data: { name: 'Admin User', email: 'admin@sabor.com', password: passwordHash, role: 'ADMIN', status: 'active' }

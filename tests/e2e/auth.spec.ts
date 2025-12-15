@@ -27,7 +27,7 @@ test.describe('Authentication', () => {
     // Login first
     await page.goto('/login');
     await page.fill('input[name="email"]', 'admin@sabor.com');
-    await page.fill('input[name="password"]', '123456');
+    await page.fill('input[name="password"]', 'password123');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL('/');
 
