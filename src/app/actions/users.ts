@@ -2,12 +2,12 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { Role } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 export async function createUser(formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
-  const role = formData.get('role') as Role;
+  const role = formData.get('role') as UserRole;
 
   if (!name || !email || !role) {
       return { success: false, error: 'Missing fields' };
