@@ -1,5 +1,11 @@
+
+const path = require('path');
+// Add app node_modules to path explicitly just in case
+module.paths.push('/app/node_modules');
+
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+
 
 const prisma = new PrismaClient();
 
