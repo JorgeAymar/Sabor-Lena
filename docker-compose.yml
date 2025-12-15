@@ -8,9 +8,10 @@ services:
     restart: always
     ports:
       - "3050:3000"
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: "postgresql://admin:password123@postgres:5432/sabor_lena?schema=public"
-      NODE_ENV: "production"
+      - NODE_ENV=production
     depends_on:
       - postgres
     networks:
