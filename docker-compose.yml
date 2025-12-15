@@ -1,5 +1,21 @@
 version: '3.8'
 services:
+  app:
+    container_name: sabor_lena_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3050:3000"
+    environment:
+      DATABASE_URL: "postgresql://admin:password123@postgres:5432/sabor_lena?schema=public"
+      NODE_ENV: "production"
+    depends_on:
+      - postgres
+    networks:
+      - sabor_net
+
   postgres:
     image: postgres:15-alpine
     container_name: sabor_lena_db
@@ -11,7 +27,13 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - sabor_net
+
+networks:
+  sabor_net:
+    driver: bridge
 
 volumes:
-  postgres_data:
+  postgres_data_prod:
