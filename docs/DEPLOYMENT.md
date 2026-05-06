@@ -109,13 +109,47 @@ Certbot actualiza automáticamente la configuración de Nginx para HTTPS.
 
 ## Actualización
 
-```bash
-cd /opt/sabor-lena
-git pull origin main
-docker compose up -d --build
+### Opción A — Rebuild desde código fuente (VPS actual)
 
-# Si hubo cambios en el schema de Prisma:
-docker compose exec app npx prisma db push
+El VPS monta el repositorio como volumen en `/opt/sabor-lena/app-files` y construye la imagen en el contenedor con `node:20`.
+
+```bash
+# 1. Entrar al VPS
+ssh -p 9022 root@217.216.49.191
+
+# 2. Pull del código
+cd /opt/sabor-lena && git -C app-files pull origin main
+
+# 3. Recrear el contenedor para forzar rebuild completo
+docker compose stop sabor-lena-app
+docker compose rm -f sabor-lena-app
+docker compose up -d sabor-lena-app
+
+# 4. Verificar que levantó correctamente
+docker logs sabor-lena-app --tail 20
+```
+
+> Usar `docker compose restart` NO es suficiente — reutiliza el caché de `.next` anterior.
+
+### Opción B — Imagen Docker Hub
+
+Si el VPS usa la imagen `jorge134/sabor-lena`:
+
+```bash
+# En local: build + push
+docker build --platform linux/amd64 -t jorge134/sabor-lena:X.X.X -t jorge134/sabor-lena:latest .
+docker push jorge134/sabor-lena:X.X.X
+docker push jorge134/sabor-lena:latest
+
+# En VPS: pull + recrear
+docker compose pull
+docker compose stop && docker compose rm -f && docker compose up -d
+```
+
+### Si hubo cambios en el schema de Prisma
+
+```bash
+docker compose exec sabor-lena-app npx prisma db push
 ```
 
 ---

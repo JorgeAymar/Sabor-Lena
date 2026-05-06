@@ -6,10 +6,12 @@ Panel de administración para restaurante construido con **Next.js 16**, **Postg
 
 | | |
 |---|---|
+| Versión | 1.0.1 |
 | Unit tests (Jest) | 62/62 ✅ |
 | E2E tests (Playwright/Chromium) | 66/66 ✅ |
 | Auditoría de seguridad | Completada — ver `docs/SECURITY_AUDIT.md` |
 | Índices de base de datos | Optimizados (10 índices adicionales) |
+| CSP (Content-Security-Policy) | Google Fonts permitido (Material Symbols) |
 
 ## Stack
 
@@ -219,7 +221,7 @@ Este proyecto implementa las siguientes medidas de seguridad:
 - Guards de autorización por rol en todas las server actions (`requireAdmin`, `requireAdminOrWaiter`, `requireAdminOrKitchen`)
 - Validación de inputs con Zod en todas las mutaciones
 - Sin SQL raw — solo Prisma ORM (elimina riesgo de SQL injection)
-- Headers de seguridad: `HSTS`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `CSP`
+- Headers de seguridad: `HSTS`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, CSP con allowlist explícita para Google Fonts
 - Password hashing con bcrypt (factor 10)
 - El hash de contraseña nunca se serializa en el token JWT
 - Middleware NextAuth protege todas las rutas del dashboard
@@ -239,3 +241,4 @@ Ver `docs/SECURITY_AUDIT.md` para el informe completo de auditoría.
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Despliegue en VPS con Docker + Nginx + SSL |
 | [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md) | Informe de auditoría de seguridad |
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Setup local y guía de contribución |
+| [docs/TEST_PLAN.md](docs/TEST_PLAN.md) | Plan de pruebas completo (81 casos: 22 unit + 59 E2E) |
