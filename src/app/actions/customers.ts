@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requireAdminOrWaiter, requireAdmin, handleAuthError } from '@/lib/auth-guard';
 
 const CustomerSchema = z.object({
   id: z.string(),
@@ -25,27 +26,27 @@ export type State = {
 };
 
 export async function createCustomer(prevState: State | undefined, formData: FormData) {
-  const rawData = {
-    name: formData.get('name'),
-    email: formData.get('email') || null, // Convert empty string to null if needed or leave as is if handling empty string
-    phone: formData.get('phone') || null,
-  };
-  
-  // console.log('Create Raw:', rawData);
-
-  const validatedFields = CreateCustomer.safeParse(rawData);
-
-  if (!validatedFields.success) {
-    // console.log('Create Validation Error:', validatedFields.error.flatten().fieldErrors);
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Faltan campos requeridos. Error al crear cliente.',
-    };
-  }
-
-  const { name, email, phone } = validatedFields.data;
-
   try {
+    // Check authorization - ADMIN or WAITER can create customers
+    await requireAdminOrWaiter();
+
+    const rawData = {
+      name: formData.get('name'),
+      email: formData.get('email') || null,
+      phone: formData.get('phone') || null,
+    };
+
+    const validatedFields = CreateCustomer.safeParse(rawData);
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Faltan campos requeridos. Error al crear cliente.',
+      };
+    }
+
+    const { name, email, phone } = validatedFields.data;
+
     await prisma.customer.create({
       data: {
         name,
@@ -54,6 +55,10 @@ export async function createCustomer(prevState: State | undefined, formData: For
       },
     });
   } catch (error) {
+    const authError = handleAuthError(error);
+    if (!authError.success) {
+      return authError;
+    }
     return {
       message: 'Base de datos Error: Fallo al crear cliente.',
     };
@@ -68,28 +73,28 @@ export async function updateCustomer(
   prevState: State | undefined,
   formData: FormData
 ) {
-  const rawData = {
-    id: id,
-    name: formData.get('name'),
-    email: formData.get('email') || null,
-    phone: formData.get('phone') || null,
-  };
-
-  // console.log('Update Raw:', rawData);
-
-  const validatedFields = UpdateCustomer.safeParse(rawData);
-
-  if (!validatedFields.success) {
-     // console.log('Update Validation Error:', validatedFields.error.flatten().fieldErrors);
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Faltan campos requeridos. Error al editar cliente.',
-    };
-  }
-
-  const { name, email, phone } = validatedFields.data;
-
   try {
+    // Check authorization
+    await requireAdminOrWaiter();
+
+    const rawData = {
+      id: id,
+      name: formData.get('name'),
+      email: formData.get('email') || null,
+      phone: formData.get('phone') || null,
+    };
+
+    const validatedFields = UpdateCustomer.safeParse(rawData);
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Faltan campos requeridos. Error al editar cliente.',
+      };
+    }
+
+    const { name, email, phone } = validatedFields.data;
+
     await prisma.customer.update({
       where: { id },
       data: {
@@ -99,6 +104,10 @@ export async function updateCustomer(
       },
     });
   } catch (error) {
+    const authError = handleAuthError(error);
+    if (!authError.success) {
+      return authError;
+    }
     console.error(error);
     return {
       message: 'Base de datos Error: Fallo al editar cliente.',
@@ -111,12 +120,15 @@ export async function updateCustomer(
 
 export async function deleteCustomer(id: string) {
   try {
+    // Check authorization - only ADMIN can delete customers
+    await requireAdmin();
+    
     await prisma.customer.delete({
       where: { id },
     });
     revalidatePath('/customers');
     return { message: 'Cliente eliminado.' };
   } catch (error) {
-    return { message: 'Base de datos Error: Fallo al eliminar cliente.' };
+    return handleAuthError(error);
   }
 }

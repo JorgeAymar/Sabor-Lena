@@ -1,10 +1,12 @@
 import React from 'react';
 import { prisma } from '@/lib/prisma';
 import UsersClient from '@/components/UsersClient';
+import { requireAdmin } from '@/lib/auth-guard';
 
 export const dynamic = 'force-dynamic';
 
 export default async function UsersPage() {
+  await requireAdmin();
   const users = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
 
   return (

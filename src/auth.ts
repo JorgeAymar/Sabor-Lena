@@ -28,26 +28,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (parsedCredentials.success) {
           const { email, password } = parsedCredentials.data;
           const user = await getUser(email);
-          if (!user) return null;
-          
-          // In a real app, you would verify the password hash here
-          // For now, if the user has no password set (legacy users), we might want to handle that
-          // Or we assume all users must have a password. 
-          
-          if (!user.password) {
-             // Temporary: Allow login if no password set in DB (for migration) 
-             // OR fail if we strictly require password. 
-             // Let's assume we want to enforce passwords.
-             return null;
-          }
+          if (!user || !user.password) return null;
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return user;
+          if (passwordsMatch) {
+            // Never include password hash or sensitive fields in the token
+            return { id: user.id, name: user.name, email: user.email, role: user.role };
+          }
         }
 
-        console.log('Invalid credentials');
         return null;
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as { role: string }).role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        (session.user as { id: string; role: string }).role = token.role as string;
+      }
+      return session;
+    },
+  },
 });

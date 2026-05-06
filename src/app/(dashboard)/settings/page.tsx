@@ -1,14 +1,18 @@
 import React from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth-guard';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
 async function updateSettings(formData: FormData) {
   'use server';
-  const restaurantName = formData.get('restaurantName') as string;
-  const currency = formData.get('currency') as string;
-  const taxRate = formData.get('taxRate') as string;
+  await requireAdmin();
+
+  const restaurantName = z.string().min(1).max(100).parse(formData.get('restaurantName'));
+  const currency = z.enum(['USD', 'EUR', 'CLP', 'MXN']).parse(formData.get('currency'));
+  const taxRate = z.string().regex(/^\d+(\.\d+)?$/).parse(formData.get('taxRate'));
 
   // Dictionary approach for simple key-value store
   const settings = [

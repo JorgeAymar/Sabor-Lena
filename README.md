@@ -1,76 +1,89 @@
-# Sabor & Leña - Admin Dashboard
+# Sabor & Leña — Admin Dashboard
 
-Este proyecto es una aplicación **Next.js** con base de datos **PostgreSQL**, diseñada para ser desplegada en un VPS utilizando **Docker Compose** y **Nginx** como proxy inverso.
+Panel de administración para restaurante construido con **Next.js 16**, **PostgreSQL**, **Prisma ORM** y **NextAuth v5**. Desplegable en VPS con **Docker Compose** y **Nginx**.
+
+## Stack
+
+| Capa | Tecnología |
+|------|-----------|
+| Frontend | Next.js 16 (App Router), Tailwind CSS, Recharts |
+| Auth | NextAuth v5 beta (Credentials + JWT) |
+| ORM | Prisma + PostgreSQL 16 |
+| Validación | Zod |
+| Infraestructura | Docker Compose, Nginx |
+
+## Roles de usuario
+
+| Rol | Acceso |
+|-----|--------|
+| `ADMIN` | Todo: productos, usuarios, configuración, inventario, clientes |
+| `WAITER` | Pedidos, clientes, inventario |
+| `KITCHEN` | Cambio de estado de pedidos |
+
+---
 
 ## Requisitos Previos
 
-En tu VPS (Ubuntu/Debian recomendado), asegúrate de tener instalado:
-- **Git**
 - **Docker** y **Docker Compose**
-- **Nginx**
+- **Nginx** (producción)
+- **Node.js 20+** (desarrollo local)
 
 ```bash
-# Instalación rápida de Docker
+# Instalación rápida de Docker (Ubuntu/Debian)
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 
 # Instalar Nginx
-sudo apt update
-sudo apt install nginx -y
+sudo apt update && sudo apt install nginx -y
 ```
 
 ---
 
-## 🚀 Instalación desde Cero
+## Instalación en Producción (VPS)
 
-Sigue estos pasos para desplegar la aplicación por primera vez.
-
-### 1. Clonar el Repositorio
+### 1. Clonar el repositorio
 ```bash
 cd /opt
 sudo git clone https://github.com/JorgeAymar/Sabor-Lena.git sabor-lena
 cd sabor-lena
 ```
 
-### 2. Configurar Variables de Entorno
-Crea el archivo `.env` basado en el ejemplo (o crea uno nuevo):
-
+### 2. Configurar variables de entorno
 ```bash
 cp .env.example .env
 nano .env
 ```
 
-Asegúrate de configurar `DATABASE_URL` para que apunte al servicio de Docker (la red interna):
+Variables requeridas:
 ```ini
-# En producción con Docker Compose, el host es el nombre del servicio 'postgres'
-DATABASE_URL="postgresql://admin:password123@postgres:5432/sabor_lena?schema=public"
+# Base de datos (host = nombre del servicio en Docker)
+DATABASE_URL="postgresql://admin:STRONG_PASSWORD@postgres:5432/sabor_lena?schema=public"
+
+# Secreto JWT — genera uno fuerte:
+# openssl rand -base64 32
+AUTH_SECRET="tu-secreto-de-32-bytes-aqui"
+
+AUTH_URL="https://tu-dominio.com"
+NODE_ENV="production"
 ```
 
-### 3. Ejecutar con Docker Compose
-Este comando levantará la base de datos y la aplicación.
+> **Importante:** `AUTH_SECRET` debe definirse una sola vez. Usar `openssl rand -base64 32` para generarlo.
 
+### 3. Levantar con Docker Compose
 ```bash
-# Construir y levantar contenedores en segundo plano
 sudo docker compose up -d --build
 ```
 
-### 4. Inicializar la Base de Datos
-Una vez que el contenedor de base de datos esté listo, ejecuta las migraciones y el seed inicial.
-
+### 4. Inicializar la base de datos
 ```bash
-# Entrar al contenedor de la app (asegúrate de saber el nombre, ej: sabor-lena-app-1)
 sudo docker compose exec app npx prisma db push
 sudo docker compose exec app npx prisma db seed
 ```
 
 ### 5. Configurar Nginx
-Crea un archivo de configuración para el sitio:
-
 ```bash
 sudo nano /etc/nginx/sites-available/sabor-lena
 ```
-
-Pega el siguiente contenido (ajusta `tu-dominio.com`):
 
 ```nginx
 server {
@@ -78,7 +91,7 @@ server {
     server_name tu-dominio.com www.tu-dominio.com;
 
     location / {
-        proxy_pass http://localhost:3000; # Puerto interno de la app Next.js
+        proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -88,52 +101,82 @@ server {
 }
 ```
 
-Activa el sitio y reinicia Nginx:
 ```bash
 sudo ln -s /etc/nginx/sites-available/sabor-lena /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
+sudo nginx -t && sudo systemctl restart nginx
 ```
 
 ---
 
-## 🔄 Actualización (Update)
+## Desarrollo Local
 
-Para actualizar la aplicación cuando haya cambios en el repositorio:
+```bash
+# Instalar dependencias
+npm install
 
-### 1. Descargar Cambios
+# Levantar base de datos
+docker compose up -d postgres
+
+# Aplicar schema y seed
+npx prisma db push
+npx prisma db seed
+
+# Iniciar servidor de desarrollo
+npm run dev
+```
+
+La app estará disponible en `http://localhost:3000` (o el siguiente puerto disponible).
+
+**Credenciales de desarrollo:**
+```
+admin@sabor.com / password123
+```
+
+> Cambiar estas credenciales antes de cualquier despliegue en producción.
+
+---
+
+## Actualización
+
 ```bash
 cd /opt/sabor-lena
 sudo git pull origin main
-```
-
-### 2. Reconstruir y Reiniciar
-```bash
 sudo docker compose up -d --build
-```
 
-### 3. Migraciones de Base de Datos (si es necesario)
-Si hubo cambios en el esquema de Prisma:
-
-```bash
+# Si hubo cambios en el schema de Prisma:
 sudo docker compose exec app npx prisma db push
 ```
 
 ---
 
-## Comandos Útiles
+## Comandos útiles
 
-- **Ver logs de la aplicación:**
-  ```bash
-  sudo docker compose logs -f app
-  ```
+```bash
+# Logs de la aplicación
+sudo docker compose logs -f app
 
-- **Ver logs de la base de datos:**
-  ```bash
-  sudo docker compose logs -f postgres
-  ```
+# Logs de la base de datos
+sudo docker compose logs -f postgres
 
-- **Reiniciar todo:**
-  ```bash
-  sudo docker compose restart
-  ```
+# Reiniciar todo
+sudo docker compose restart
+
+# Acceder a Prisma Studio (desarrollo)
+npx prisma studio
+```
+
+---
+
+## Seguridad
+
+Este proyecto implementa las siguientes medidas de seguridad:
+
+- Autenticación JWT con NextAuth v5 — `role` propagado explícitamente en callbacks
+- Guards de autorización por rol en todas las server actions (`requireAdmin`, `requireAdminOrWaiter`, `requireAdminOrKitchen`)
+- Validación de inputs con Zod en todas las mutaciones
+- Sin SQL raw — solo Prisma ORM (elimina riesgo de SQL injection)
+- Headers de seguridad: `HSTS`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `CSP`
+- Password hashing con bcrypt (factor 10)
+- El hash de contraseña nunca se incluye en el token JWT
+
+Ver historial de auditoría de seguridad en `docs/SECURITY_AUDIT.md`.

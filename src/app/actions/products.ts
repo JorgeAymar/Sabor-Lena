@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin, handleAuthError } from '@/lib/auth-guard';
 
 const ProductSchema = z.object({
   id: z.string(),
@@ -26,26 +27,29 @@ export type ProductState = {
 };
 
 export async function createProduct(prevState: ProductState | undefined, formData: FormData) {
-  const rawData = {
-    name: formData.get('name'),
-    price: Number(formData.get('price')),
-    categoryId: formData.get('categoryId'),
-    description: formData.get('description') || null,
-    image: formData.get('image') || null,
-  };
-
-  const validatedFields = CreateProduct.safeParse(rawData);
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Faltan campos requeridos.',
-    };
-  }
-
-  const { name, price, categoryId, description, image } = validatedFields.data;
-
   try {
+    // Check authorization - only ADMIN can create products
+    await requireAdmin();
+
+    const rawData = {
+      name: formData.get('name'),
+      price: Number(formData.get('price')),
+      categoryId: formData.get('categoryId'),
+      description: formData.get('description') || null,
+      image: formData.get('image') || null,
+    };
+
+    const validatedFields = CreateProduct.safeParse(rawData);
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Faltan campos requeridos.',
+      };
+    }
+
+    const { name, price, categoryId, description, image } = validatedFields.data;
+
     const product = await prisma.product.create({
       data: {
         name,
@@ -66,6 +70,10 @@ export async function createProduct(prevState: ProductState | undefined, formDat
       }
     });
   } catch (error) {
+    const authError = handleAuthError(error);
+    if (!authError.success) {
+      return authError;
+    }
     console.error(error);
     return {
       message: 'Error al crear producto.',
@@ -81,27 +89,30 @@ export async function updateProduct(
   prevState: ProductState | undefined,
   formData: FormData
 ) {
-  const rawData = {
-    id: id,
-    name: formData.get('name'),
-    price: Number(formData.get('price')),
-    categoryId: formData.get('categoryId'),
-    description: formData.get('description') || null,
-    image: formData.get('image') || null,
-  };
-
-  const validatedFields = UpdateProduct.safeParse(rawData);
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Error de validación.',
-    };
-  }
-
-  const { name, price, categoryId, description, image } = validatedFields.data;
-
   try {
+    // Check authorization - only ADMIN can update products
+    await requireAdmin();
+
+    const rawData = {
+      id: id,
+      name: formData.get('name'),
+      price: Number(formData.get('price')),
+      categoryId: formData.get('categoryId'),
+      description: formData.get('description') || null,
+      image: formData.get('image') || null,
+    };
+
+    const validatedFields = UpdateProduct.safeParse(rawData);
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Error de validación.',
+      };
+    }
+
+    const { name, price, categoryId, description, image } = validatedFields.data;
+
     await prisma.product.update({
       where: { id },
       data: {
@@ -113,6 +124,10 @@ export async function updateProduct(
       }
     });
   } catch (error) {
+    const authError = handleAuthError(error);
+    if (!authError.success) {
+      return authError;
+    }
     return { message: 'Error al actualizar producto.' };
   }
 
@@ -122,22 +137,24 @@ export async function updateProduct(
 
 export async function deleteProduct(id: string) {
   try {
-    // Transaction to delete inventory first if needed, but cascade might handle it?
-    // Prisma schema usually doesn't cascade delete unless specified.
-    // InventoryItem has relation to Product.
-    // Let's delete inventory item first manually to be safe or rely on logic.
+    // Check authorization - only ADMIN can delete products
+    await requireAdmin();
+
+    // Delete inventory first, then product
     await prisma.inventoryItem.deleteMany({ where: { productId: id } });
     await prisma.product.delete({ where: { id } });
     revalidatePath('/menu');
     return { message: 'Producto eliminado.' };
   } catch (error) {
-    console.error(error);
-    return { message: 'Error al eliminar producto.' };
+    return handleAuthError(error);
   }
 }
 
 export async function toggleProductAvailability(id: string, currentStatus: boolean) {
   try {
+    // Check authorization - only ADMIN can toggle availability
+    await requireAdmin();
+
     await prisma.product.update({
       where: { id },
       data: { isAvailable: !currentStatus }
@@ -145,10 +162,11 @@ export async function toggleProductAvailability(id: string, currentStatus: boole
     revalidatePath('/menu');
     return { message: 'Estado actualizado.' };
   } catch (error) {
-    return { message: 'Error al cambiar estado.' };
+    return handleAuthError(error);
   }
 }
 
 export async function getCategories() {
+  await requireAdmin();
   return await prisma.category.findMany();
 }
