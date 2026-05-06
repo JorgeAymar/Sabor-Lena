@@ -1,26 +1,25 @@
-# Sabor & Leña - Admin Panel
+# Documentación — Sabor & Leña Admin
 
-Panel de administración para el restaurante Sabor & Leña, construido con Next.js, Prisma y Postgres.
+## Índice
 
-## Características Principales
-- **Dashboard**: Vista general de métricas del restaurante.
-- **Pedidos**: Gestión de comandas en tiempo real.
-- **Menú**: Administración de productos y categorías.
-- **Usuarios**: Gestión de personal y roles (Admin, Camarero, Cocina).
-- **Inventario**: Control de stock de ingredientes.
+| Documento | Descripción |
+|-----------|-------------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Estructura del proyecto, flujos de auth, modelo de datos, guards de autorización |
+| [DATA_MODEL.md](DATA_MODEL.md) | Referencia completa de los modelos Prisma, campos, índices y relaciones |
+| [SERVER_ACTIONS.md](SERVER_ACTIONS.md) | Referencia de todas las Server Actions: guards, validaciones, tipos de retorno |
+| [TESTING.md](TESTING.md) | Cómo correr tests unitarios (Jest) y E2E (Playwright), cobertura por suite |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Despliegue en VPS con Docker Compose + Nginx, SSL, respaldos |
+| [SECURITY_AUDIT.md](SECURITY_AUDIT.md) | Informe completo de auditoría de seguridad y fixes aplicados |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Setup local, convenciones de código, cómo agregar features |
 
-## Tecnologías
-- **Framework**: Next.js 16 (App Router)
-- **Lenguaje**: TypeScript
-- **Base de Datos**: PostgreSQL
-- **ORM**: Prisma
-- **Autenticación**: NextAuth.js v5 (Beta)
-- **UI**: TailwindCSS
-- **Pruebas**: Jest (Unitarias) + Playwright (E2E)
+---
 
-## Estructura del Proyecto
-- `src/app`: Rutas y vistas de la aplicación.
-- `src/components`: Componentes reutilizables (Sidebar, Forms, UI).
-- `src/lib`: Utilidades (cliente Prisma).
-- `prisma`: Esquema de BD y scripts de seed.
-- `tests`: Tests E2E y unitarios.
+## Resumen rápido
+
+**Stack:** Next.js 16 App Router · PostgreSQL 16 · Prisma ORM · NextAuth v5 · Zod · Tailwind CSS
+
+**Tests:** 62 unit (Jest) + 66 E2E (Playwright/Chromium) — todos pasando
+
+**Roles:** `ADMIN` (acceso total) · `WAITER` (pedidos + clientes + stock) · `KITCHEN` (estado de pedidos)
+
+**Credenciales dev:** `admin@sabor.com` / `password123`

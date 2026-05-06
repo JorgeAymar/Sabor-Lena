@@ -2,6 +2,15 @@
 
 Panel de administración para restaurante construido con **Next.js 16**, **PostgreSQL**, **Prisma ORM** y **NextAuth v5**. Desplegable en VPS con **Docker Compose** y **Nginx**.
 
+## Estado del proyecto
+
+| | |
+|---|---|
+| Unit tests (Jest) | 62/62 ✅ |
+| E2E tests (Playwright/Chromium) | 66/66 ✅ |
+| Auditoría de seguridad | Completada — ver `docs/SECURITY_AUDIT.md` |
+| Índices de base de datos | Optimizados (10 índices adicionales) |
+
 ## Stack
 
 | Capa | Tecnología |
@@ -11,6 +20,7 @@ Panel de administración para restaurante construido con **Next.js 16**, **Postg
 | ORM | Prisma + PostgreSQL 16 |
 | Validación | Zod |
 | Infraestructura | Docker Compose, Nginx |
+| Testing | Jest (unit) + Playwright (E2E, Chromium) |
 
 ## Roles de usuario
 
@@ -125,7 +135,7 @@ npx prisma db seed
 npm run dev
 ```
 
-La app estará disponible en `http://localhost:3000` (o el siguiente puerto disponible).
+La app estará disponible en `http://localhost:3000`.
 
 **Credenciales de desarrollo:**
 ```
@@ -133,6 +143,16 @@ admin@sabor.com / password123
 ```
 
 > Cambiar estas credenciales antes de cualquier despliegue en producción.
+
+**Variables de entorno locales (`.env`):**
+```ini
+DATABASE_URL="postgresql://admin:password123@localhost:5434/sabor_lena?schema=public"
+AUTH_SECRET="<openssl rand -base64 32>"
+AUTH_URL="http://localhost:3000"   # debe coincidir con el puerto del dev server
+NODE_ENV="development"
+```
+
+> `AUTH_URL` debe coincidir exactamente con el puerto donde corre `npm run dev`. Si Next.js cambia de puerto (ej. `3001`), actualizar este valor o los redirects de autenticación fallarán.
 
 ---
 
@@ -167,16 +187,55 @@ npx prisma studio
 
 ---
 
+## Tests
+
+### Unit tests (Jest)
+
+```bash
+npx jest --testPathPattern="tests/unit"
+```
+
+62 tests en 5 suites: `products`, `customers`, `users`, `orders`, `auth-actions`.
+
+Cada suite mockea `@/lib/auth-guard` para aislar la lógica de negocio de los guards de autenticación.
+
+### E2E tests (Playwright)
+
+```bash
+# Requiere servidor corriendo en localhost:3000 y DB con seed
+npx prisma db seed
+python3 tests/e2e/e2e_tests.py
+```
+
+66 tests sobre Chromium headless. Cubre Login, Dashboard, Menú, Pedidos, Clientes, Usuarios, Inventario, Configuración y protección de rutas (S-01/S-02/S-03).
+
+---
+
 ## Seguridad
 
 Este proyecto implementa las siguientes medidas de seguridad:
 
-- Autenticación JWT con NextAuth v5 — `role` propagado explícitamente en callbacks
+- Autenticación JWT con NextAuth v5 — `role` propagado explícitamente en callbacks `jwt` y `session`
 - Guards de autorización por rol en todas las server actions (`requireAdmin`, `requireAdminOrWaiter`, `requireAdminOrKitchen`)
 - Validación de inputs con Zod en todas las mutaciones
 - Sin SQL raw — solo Prisma ORM (elimina riesgo de SQL injection)
 - Headers de seguridad: `HSTS`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `CSP`
 - Password hashing con bcrypt (factor 10)
-- El hash de contraseña nunca se incluye en el token JWT
+- El hash de contraseña nunca se serializa en el token JWT
+- Middleware NextAuth protege todas las rutas del dashboard
 
-Ver historial de auditoría de seguridad en `docs/SECURITY_AUDIT.md`.
+Ver `docs/SECURITY_AUDIT.md` para el informe completo de auditoría.
+
+---
+
+## Documentación
+
+| Documento | Contenido |
+|-----------|-----------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Estructura, flujos de auth, guards de rol |
+| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Modelos Prisma, campos e índices |
+| [docs/SERVER_ACTIONS.md](docs/SERVER_ACTIONS.md) | Referencia de todas las Server Actions |
+| [docs/TESTING.md](docs/TESTING.md) | Cómo correr tests, cobertura detallada |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Despliegue en VPS con Docker + Nginx + SSL |
+| [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md) | Informe de auditoría de seguridad |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Setup local y guía de contribución |
