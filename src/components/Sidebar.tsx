@@ -103,6 +103,10 @@ const Sidebar = () => {
               <span className="material-symbols-outlined">logout</span>
               <p className="text-sm font-medium">Cerrar Sesión</p>
             </button>
+
+            <p className="px-3 pt-2 text-[11px] text-gray-400 select-none">
+              v{process.env.NEXT_PUBLIC_APP_VERSION ?? '0.1.0'}
+            </p>
           </div>
         </div>
       </aside>
