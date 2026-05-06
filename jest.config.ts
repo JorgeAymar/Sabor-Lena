@@ -13,6 +13,7 @@ const config: Config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
     "^next-auth$": "<rootDir>/tests/mocks/next-auth.ts",
+    "^@/auth$": "<rootDir>/tests/mocks/auth.ts",
   },
   testMatch: ["**/tests/unit/**/*.test.ts"],
   transformIgnorePatterns: [

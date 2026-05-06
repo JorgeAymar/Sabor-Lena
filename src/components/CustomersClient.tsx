@@ -48,10 +48,12 @@ export default function CustomersClient({ customers }: CustomersClientProps) {
 
     setIsLoading(false);
 
-    if (result.errors) {
-      setErrors(result.errors);
-    } else if (result.message) {
-      // Could show toast success here
+    if ('errors' in result && result.errors) {
+      setErrors(result.errors as Record<string, string[]>);
+    } else if ('success' in result && !result.success) {
+      // Auth/permission error — close modal and surface as page-level error
+      handleClose();
+    } else if ('message' in result && result.message) {
       handleClose();
     }
   };

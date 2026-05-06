@@ -12,11 +12,15 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  password  String?  // Optional for now, required for credentials auth
+  password  String?
   role      UserRole @default(WAITER)
-  status    String   @default("active") // active, inactive
+  status    String   @default("active")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Product {
@@ -30,11 +34,13 @@ model Product {
   isAvailable Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   orderItems  OrderItem[]
   inventory   InventoryItem?
 
   @@index([categoryId])
+  @@index([isAvailable])
+  @@index([name])
 }
 
 model Category {
@@ -50,8 +56,12 @@ model Order {
   total       Float       @default(0)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  
+
   items       OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([tableNumber])
 }
 
 model OrderItem {
@@ -76,6 +86,10 @@ model Customer {
   lastVisit  DateTime @default(now())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([name])
+  @@index([lastVisit])
+  @@index([createdAt])
 }
 
 model InventoryItem {
@@ -88,6 +102,7 @@ model InventoryItem {
   updatedAt DateTime @updatedAt
 
   @@index([productId])
+  @@index([quantity])
 }
 
 model Setting {
