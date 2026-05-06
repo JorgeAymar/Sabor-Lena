@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/app/actions/auth-actions';
+import { version } from '../../package.json';
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -105,7 +106,7 @@ const Sidebar = () => {
             </button>
 
             <p className="px-3 pt-2 text-[11px] text-gray-400 select-none">
-              v{process.env.NEXT_PUBLIC_APP_VERSION ?? '0.1.0'}
+              v{version}
             </p>
           </div>
         </div>
