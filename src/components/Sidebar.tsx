@@ -102,12 +102,11 @@ const Sidebar = () => {
               className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 transition-colors w-full text-left mt-1"
             >
               <span className="material-symbols-outlined">logout</span>
-              <p className="text-sm font-medium">Cerrar Sesión</p>
+              <div className="flex flex-col">
+                <p className="text-sm font-medium">Cerrar Sesión</p>
+                <span className="text-[10px] text-gray-400">v{version}</span>
+              </div>
             </button>
-
-            <p className="px-3 pt-2 text-[11px] text-gray-400 select-none">
-              v{version}
-            </p>
           </div>
         </div>
       </aside>
